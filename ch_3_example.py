@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import Perceptron
 from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier  
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
@@ -100,6 +101,7 @@ class iris_data:
         return self.X_train_std, self.y_train, self.X_test_std, self.y_test
     
     def combined_data(self):
+        self.std_data()
         X_combined_std = np.vstack((self.X_train_std, self.X_test_std))
         y_combined = np.hstack((self.y_train, self.y_test))
         return X_combined_std, y_combined
@@ -233,6 +235,16 @@ def random_forest_related():
     plt.show()
     
 def k_nearest():
+    ir = iris_data()
+    X_train, y_train, X_test, y_test = ir.norm_data()
+    X_train_std, y_train, X_test_std, y_test = ir.std_data()
+    X_combined_std, y_combined = ir.combined_data()
+    knn = KNeighborsClassifier(n_neighbors = 5, p = 2, metric = 'minkowski')
+    knn.fit(X_train_std, y_train)
+    plot_decision_regions(X_combined_std, y_combined, classifier = knn, test_idx = range(105, 150))
+    plt.xlabel('petal length [standardized]')
+    plt.ylabel('petal width [standardized]')
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -240,4 +252,4 @@ if __name__ == '__main__':
 
     k_nearest()
 
-    '''next learning in Ch_2 is page 41, 3.4 SVM related'''
+    
