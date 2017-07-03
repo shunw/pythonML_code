@@ -22,6 +22,7 @@ Compressing Data via Dimensionality Reduction:
     5. 选取前k个特征值所对应的特征向量，构造一个dxk维的转换矩阵W，其中特征向量以列的形式排列
     6. 使用转换矩阵W将样本映射到新的特征子空间上
 3. kernel principal component analysis
+
 '''
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
@@ -29,6 +30,7 @@ import numpy as np
 import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn.decomposition import PCA
+from sklearn.lda import LDA
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
@@ -211,19 +213,37 @@ def LDA_related():
     X_train_lda = X_train_std.dot(w)
     colors = ['r', 'b', 'g']
     markers = ['s', 'x', 'o']
-    # print (np.unique(y_train))
-    # print (X_train_lda[y == 3].shape)
-    # print (X_train_std.shape)
-    # print (y_train.shape)
-    for l, c, m in zip(np.unique(y_train), colors, markers):
-        plt.scatter(X_train_lda[y_train == l, 0] * (-1),
-                    X_train_lda[y_train == l, 1] * (-1),
-                    c = c, label = l, marker = m
-        )
-    plt.xlabel('LD 1')
-    plt.ylabel('LD 2')
-    plt.legend(loc = 'lower right')
-    plt.show()
+    # for l, c, m in zip(np.unique(y_train), colors, markers):
+    #     plt.scatter(X_train_lda[y_train == l, 0] * (-1),
+    #                 X_train_lda[y_train == l, 1] * (-1),
+    #                 c = c, label = l, marker = m
+    #     )
+    # plt.xlabel('LD 1')
+    # plt.ylabel('LD 2')
+    # plt.legend(loc = 'lower right')
+    # plt.show()
+
+    '''lda in the scikit-learn'''
+    lda = LDA(n_components = 2)
+    X_train_lda = lda.fit_transform(X_train_std, y_train)
+
+    # on the training data
+    lr = LogisticRegression()
+    lr = lr.fit(X_train_lda, y_train)
+    # plot_decision_regions(X_train_lda, y_train, classifier = lr)
+    # plt.xlabel('LD 1')
+    # plt.ylabel('LD 2')
+    # plt.legend(loc = 'lower left')
+    # plt.show()
+
+    # on the test data
+    X_test_lda = lda.transform(X_test_std)
+    # plot_decision_regions(X_test_lda, y_test, classifier = lr)
+    # plt.xlabel('LD 1')
+    # plt.ylabel('LD 2')
+    # plt.legend(loc = 'lower left')
+    # plt.show()
+
 
 if __name__ == '__main__':
     LDA_related()
