@@ -26,13 +26,21 @@ Compressing Data via Dimensionality Reduction:
 '''
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import pandas as pd
+from scipy import exp
+from scipy.linalg import eigh
+from scipy.spatial.distance import pdist, squareform
 from sklearn.cross_validation import train_test_split
+from sklearn.datasets import make_moons
+from sklearn.datasets import make_circles
 from sklearn.decomposition import PCA
+from sklearn.decomposition import KernelPCA
 from sklearn.lda import LDA
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+
 
 def plot_decision_regions(X, y, classifier, resolution = .02):
 
@@ -244,7 +252,155 @@ def LDA_related():
     # plt.legend(loc = 'lower left')
     # plt.show()
 
+def rbf_kernel_pca(X, gamma, n_components):
+    '''
+    RBF kernel PCA implementation.
+
+    Parameters
+    -------------
+    X: {NumPy ndarray}, shape = [n_samples, n_features]
+
+    gamma: float
+        Tuning parameter of the RBF kernel
+    
+    n_components: int
+        Number of principal components to return
+
+    Returns
+    -------------
+    X_pc: {NumPy ndarray}, shape = [n_sampels, k_features] 
+        Projected dataset
+    lambdas: list
+        Eigenvalues
+    '''
+    # Calculate pairwise squared Euclidean distances in the MxN dimensional dataset. 
+    sq_dists = pdist(X, 'sqeuclidean')
+
+    # Convert pairwise distances into a square matrix. 
+    mat_sq_dists = squareform(sq_dists)
+
+    # Compute the symmetric kernel matrix
+    K = exp(-gamma * mat_sq_dists)
+
+    # Center the kernel matrix
+    N = K.shape[0]
+    one_n = np.ones((N,N)) / N
+    K = K - one_n.dot(K) - K.dot(one_n) + one_n.dot(K).dot(one_n)
+
+    # Obtaining eigenpairs from the centered kernel matrix numpy.eigh returns them in sorted order
+    eigvals, eigvecs = eigh(K)
+
+    # Collect the top k eigenvectors (projected samples)
+    alphas = np.column_stack((eigvecs[:, -i]
+                            for i in range(1, n_components + 1)))
+    
+    # Collect the corresponding eigenvalues
+    lambdas = [eigvals[-i] for i in range(1, n_components + 1)]
+    return alphas, lambdas
+
+def project_x(x_new, X, gamma, alphas, lambdas):
+    pair_dist = np.array([np.sum((x_new - row) ** 2) for row in X])
+    k = np.exp(-gamma * pair_dist)
+    return k.dot(alphas/lambdas)
+
+
+def kernel_pca():
+    
+    '''example 2'''
+    '''data making'''
+    X, y = make_circles(n_samples = 1000, random_state = 123, noise = .1, factor = .2)
+    # plt.scatter(X[y == 0, 0], X[y == 0, 1], color = 'red', marker = '^', alpha = .5)
+    # plt.scatter(X[y == 1, 0], X[y == 1, 1], color = 'blue', marker = 'o', alpha = .5)
+    # plt.show()
+
+    '''deal with the standard PCA'''
+    scikit_pca = PCA(n_components = 2)
+    X_spca = scikit_pca.fit_transform(X)
+    # fit, ax = plt.subplots(nrows = 1, ncols = 2, figsize = (7, 3))
+    # ax[0].scatter(X_spca[y == 0, 0], X_spca[y == 0, 1], color = 'red', marker = '^', alpha = .5)
+    # ax[0].scatter(X_spca[y == 1, 0], X_spca[y == 1, 1], color = 'blue', marker = 'o', alpha = .5)
+    # ax[1].scatter(X_spca[y == 0, 0], np.zeros((500, 1)) + .02, color = 'red', marker = '^', alpha = .5)
+    # ax[1].scatter(X_spca[y == 1, 0], np.zeros((500, 1)) - .02, color = 'blue', marker = 'o', alpha = .5)
+    # ax[0].set_xlabel('PC1')
+    # ax[0].set_ylabel('PC2')
+    # ax[1].set_ylim([-1, 1])
+    # ax[1].set_yticks([])
+    # ax[1].set_xlabel('PC1')
+    # plt.show()
+
+    '''deal with the RBF pca'''
+    X_kpca, lambdas = rbf_kernel_pca(X, gamma = 15, n_components = 2)
+    # fit, ax = plt.subplots(nrows = 1, ncols = 2, figsize = (7, 3))
+    # ax[0].scatter(X_kpca[y == 0, 0], X_kpca[y == 0, 1], color = 'red', marker = '^', alpha = .5)
+    # ax[0].scatter(X_kpca[y == 1, 0], X_kpca[y == 1, 1], color = 'blue', marker = 'o', alpha = .5)
+    # ax[1].scatter(X_kpca[y == 0, 0], np.zeros((500, 1)) + .02, color = 'red', marker = '^', alpha = .5)
+    # ax[1].scatter(X_kpca[y == 1, 0], np.zeros((500, 1)) - .02, color = 'blue', marker = 'o', alpha = .5)
+    # ax[0].set_xlabel('PC1')
+    # ax[0].set_ylabel('PC2')
+    # ax[1].set_ylim([-1, 1])
+    # ax[1].set_yticks([])
+    # ax[1].set_xlabel('PC1')
+    # plt.show()
+
+    '''example 1'''
+    ''' make non-linear data'''
+    X, y = make_moons(n_samples = 100, random_state = 123)
+    # plt.scatter(X[y == 0, 0], X[y==0, 1], color = 'red', marker = '^', alpha = .5)
+    # plt.scatter(X[y == 1, 0], X[y==1, 1], color = 'blue', marker = 'o', alpha = .5)
+    # plt.show()
+
+    ''' try the non-linear data on the standard PCA first'''
+    scikit_pca = PCA(n_components = 2)
+    X_spca = scikit_pca.fit_transform(X)
+    # fit, ax = plt.subplots(nrows = 1, ncols = 2, figsize = (7, 3))
+    # ax[0].scatter(X_spca[y == 0, 0], X_spca[y == 0, 1], color = 'red', marker = '^', alpha = .5)
+    # ax[0].scatter(X_spca[y == 1, 0], X_spca[y == 1, 1], color = 'blue', marker = 'o', alpha = .5)
+    # ax[1].scatter(X_spca[y == 0, 0], np.zeros((50, 1)) + .02, color = 'red', marker = '^', alpha = .5)
+    # ax[1].scatter(X_spca[y == 1, 0], np.zeros((50, 1)) - .02, color = 'blue', marker = 'o', alpha = .5)
+
+    # ax[0].set_xlabel('PC1')
+    # ax[0].set_ylabel('PC2')
+    # ax[1].set_ylim([-1, 1])
+    # ax[1].set_yticks([])
+    # ax[1].set_xlabel('PC1')
+    # plt.show()
+
+    ''' try the rbf_kernel_pca '''
+    X_kpca, lambdas = rbf_kernel_pca(X, gamma = 15, n_components = 2)
+    # fig, ax = plt.subplots(nrows = 1, ncols = 2, figsize = (7, 3))
+    # ax[0].scatter(X_kpca[y == 0, 0], X_kpca[y == 0, 1], color = 'red', marker = '^', alpha = .5)
+    # ax[0].scatter(X_kpca[y == 1, 0], X_kpca[y == 1, 1], color = 'blue', marker = 'o', alpha = .5)
+    # ax[1].scatter(X_kpca[y == 0, 0], np.zeros((50, 1)) + .02, color = 'red', marker = '^', alpha = .5)
+    # ax[1].scatter(X_kpca[y == 1, 0], np.zeros((50, 1)) - .02, color = 'blue', marker = 'o', alpha = .5)
+    # ax[0].set_xlabel('PC1')
+    # ax[0].set_ylabel('PC2')
+    # ax[1].set_ylim([-1, 1])
+    # ax[1].set_yticks([])
+    # ax[1].set_xlabel('PC1')
+    # ax[0].xaxis.set_major_formatter(FormatStrFormatter('%0.1f'))
+    # ax[1].xaxis.set_major_formatter(FormatStrFormatter('%0.1f'))
+    # plt.show()
+
+    '''add new dataset, to use the rbf_kernel transform again'''
+    alphas = X_kpca
+    x_new = X[25]
+    # print x_new
+    # print alphas[25]
+    x_reproj = project_x(x_new, X, gamma = 15, alphas = alphas, lambdas = lambdas)
+    # print x_reproj
+
+    '''use scikit-learn default kernel PCA'''
+    scikit_kpca = KernelPCA(n_components = 2, kernel = 'rbf', gamma = 15)
+    X_skernpca = scikit_kpca.fit_transform(X)
+
+    plt.scatter(X_skernpca[y == 0, 0], X_skernpca[y == 0, 1], color = 'red', marker = '^', alpha = .5)
+    plt.scatter(X_skernpca[y == 1, 0], X_skernpca[y == 1, 1], color = 'blue', marker = 'o', alpha = .5)
+    plt.xlabel('PC1')
+    plt.ylabel('PC2')
+    plt.show()
+
+
 
 if __name__ == '__main__':
-    LDA_related()
+    kernel_pca()
 
