@@ -11,6 +11,8 @@ from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import train_test_split
 from sklearn.externals import six
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import auc
+from sklearn.metrics import roc_curve
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import _name_estimators
 from sklearn.pipeline import Pipeline
@@ -107,36 +109,36 @@ class MajorityVoteClassifier(BaseEstimator, ClassifierMixin):
             maj_vote = self.lablenc_.inverse_transform(maj_vote)
             return maj_vote
         
-        def predict_proba(self, X):
-            '''Predict class probabilities for X
-            
-            Paramters
-            -----------
-            X: {array-like, sparse matrix}, 
-                shape = [n_sampels, n_features]
-                Training vectors, where n_samples is the number of samples and n_features is the number of features. 
+    def predict_proba(self, X):
+        '''Predict class probabilities for X
+        
+        Paramters
+        -----------
+        X: {array-like, sparse matrix}, 
+            shape = [n_sampels, n_features]
+            Training vectors, where n_samples is the number of samples and n_features is the number of features. 
 
-            Returns
-            -----------
-            avg_proba: array-like
-                shape = [n_samples, n_classes]
-                Weigthed average probability for each class per sample.
+        Returns
+        -----------
+        avg_proba: array-like
+            shape = [n_samples, n_classes]
+            Weigthed average probability for each class per sample.
 
-            '''
-            probas = np.asarray([clf.predict_proba(X) for clf in self.classifiers_])
-            avg_proba = np.average(probas, axis = 0, weights = self.weights)
-            return avg_proba
+        '''
+        probas = np.asarray([clf.predict_proba(X) for clf in self.classifiers_])
+        avg_proba = np.average(probas, axis = 0, weights = self.weights)
+        return avg_proba
 
-        def get_params(self, deep = True):
-            '''Get classifier paramter names for GridSearch'''
-            if not deep: 
-                return super(MajorityVoteClassifier, self).get_params(deep = False)
-            else:
-                out = self.named_classifiers.copy()
-                for name, step in six.iteritems(self.named_classifiers):
-                    for key, value in six.iteritems(step.get_params(deep = True)):
-                        out['{name}__{key}'.format(name = name, key = key)] = value
-                return out
+    def get_params(self, deep = True):
+        '''Get classifier paramter names for GridSearch'''
+        if not deep: 
+            return super(MajorityVoteClassifier, self).get_params(deep = False)
+        else:
+            out = self.named_classifiers.copy()
+            for name, step in six.iteritems(self.named_classifiers):
+                for key, value in six.iteritems(step.get_params(deep = True)):
+                    out['{name}__{key}'.format(name = name, key = key)] = value
+            return out
 
 def iris_data():
     iris = datasets.load_iris()
@@ -176,8 +178,10 @@ def simple_majority_vote():
         scores = cross_val_score(estimator = clf, X = X_train, y = y_train, cv = 10, scoring = 'roc_auc')
         print ('Accuracy: {score_mean:.2f} (+/- {score_std:.2f}) [{label}]'.format(score_mean = scores.mean(), score_std = scores.std(), label = label))
 
-        
+
 if __name__ == '__main__':
     # print ensemble_error(n_classifier = 11, error = .25)
     # ensembles_errors()
     simple_majority_vote()
+
+    # page 238/ 213
