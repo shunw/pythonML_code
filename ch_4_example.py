@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 '''
-To select meaningful feature: 
-1. Sparse solutions with L1 regularization 
-    需要进行正则化处理
-2. Sequential feature selection algorithms 序列特征选择法
-    通过特征选择进行降维，对未经正则化处理的模型特别有效
-3. random forest tree
+Mainly Covered: 
+1. 去除/估算 missing values from the dataset
+2. 将categorical 数据转化成可以用于machine learning algorithms处理的样子
+3. To select meaningful feature: 
+    1. Sparse solutions with L1 regularization 
+        需要进行正则化处理
+    2. Sequential feature selection algorithms 序列特征选择法
+        通过特征选择进行降维，对未经正则化处理的模型特别有效
+    3. random forest tree
 '''
 
 import pandas as pd
@@ -36,8 +39,8 @@ def NaN_data_deal():
     df = pd.read_csv(StringIO(csv_data))
     
     '''del NaN data_ row or col'''
-    a = df.dropna()
-    a = df.dropna(axis = 1)
+    a = df.dropna() # drop rows when there is any nan is the row
+    a = df.dropna(axis = 1) # drop cols when there is any nan in the col
     a = df.dropna(how = 'all') # only drop rows where all col are NaN
     a = df.dropna(thresh = 4) # drop rows that have not at least 4 non-NaN values
     a = df.dropna(subset = ['C'])
@@ -46,6 +49,7 @@ def NaN_data_deal():
     imr = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
     imr = imr.fit(df)
     imputed_data = imr.transform(df.values)
+    # print df
     # print imputed_data
 
     '''deal the category data - ordinal feature'''
@@ -66,7 +70,6 @@ def NaN_data_deal():
     
     '''deal the category data - nominal feature'''
     class_mapping = {label: idx for idx, label in enumerate(np.unique(df['classlabel']))}
-    
     df['classlabel'] = df['classlabel'].map(class_mapping)
     inv_map = {v: k for k, v in class_mapping.items()}
     df['classlabel'] = df['classlabel'].map(inv_map)
@@ -79,15 +82,17 @@ def NaN_data_deal():
 
     '''one-hot encoding in on nominal features'''
     X = df[['color', 'size', 'price']].values
+    # print X
     color_le = LabelEncoder()
     X[:, 0] = color_le.fit_transform(X[:, 0])
+    # print X
     
     ohe = OneHotEncoder(categorical_features=[0]) # could only work on the intger
-    # categorical_features = 'auto'
+    categorical_features = 'auto'
     # print (ohe.fit_transform(X))
-    print (ohe.fit_transform(X).toarray())
+    # print (ohe.fit_transform(X).toarray())
     
-    print pd.get_dummies(df[['price', 'color', 'size']]) # could only work on the string
+    # print pd.get_dummies(df[['price', 'color', 'size']]) # could only work on the string
 
 def L1_regularization():
     df_wine = pd.read_csv('wine.data', header = None)    
@@ -112,7 +117,7 @@ def L1_regularization():
     # print (y_train)
     X_test_std = stdsc.transform(X_test)
 
-    ''' to support L1 regularization, penalty parameter set to '11' to yield sparse solution'''
+    ''' to support L1 regularization, penalty parameter set to 'l1' to yield sparse solution'''
     LogisticRegression(penalty = 'l1')
     lr = LogisticRegression(penalty = 'l1', C = .1)
     lr.fit(X_train_std, y_train)
@@ -270,9 +275,11 @@ def random_forest():
 
 
 if __name__ == '__main__':
+    NaN_data_deal()
+
     # L1_regularization()
 
     # seq_feature_select()
 
-    random_forest()
+    # random_forest()
     
