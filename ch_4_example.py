@@ -121,10 +121,10 @@ def L1_regularization():
     LogisticRegression(penalty = 'l1')
     lr = LogisticRegression(penalty = 'l1', C = .1)
     lr.fit(X_train_std, y_train)
-    print ('Training accuracy: ', lr.score(X_train_std, y_train))
-    print ('Test accuracy: ', lr.score(X_test_std, y_test))
-    print lr.intercept_
-    print lr.coef_
+    # print ('Training accuracy: ', lr.score(X_train_std, y_train))
+    # print ('Test accuracy: ', lr.score(X_test_std, y_test))
+    # print lr.intercept_
+    # print lr.coef_
 
     '''plot regularization path'''
     fig = plt.figure()
@@ -136,6 +136,7 @@ def L1_regularization():
         lr.fit(X_train_std, y_train)
         weights.append(lr.coef_[1])
         params.append(10 ** c)
+    
     # print weights
     weights = np.array(weights)
     for column, color in zip(range(weights.shape[1]), colors):
@@ -144,14 +145,14 @@ def L1_regularization():
                 label = df_wine.columns[column + 1], 
                 color = color)
 
-    plt.axhline(0, color = 'black', linestyle = '--', linewidth = 3)
-    plt.xlim([10 ** (-5), 10 ** 5])
-    plt.ylabel('weight coefficient')
-    plt.xlabel('C')
-    plt.xscale('log')
-    plt.legend(loc = 'upper left')
-    ax.legend(loc = 'upper center', bbox_to_anchor = (1.38, 1.03), ncol = 1, fancybox = True)
-    plt.show()
+    # plt.axhline(0, color = 'black', linestyle = '--', linewidth = 3)
+    # plt.xlim([10 ** (-5), 10 ** 5])
+    # plt.ylabel('weight coefficient')
+    # plt.xlabel('C')
+    # plt.xscale('log')
+    # plt.legend(loc = 'upper left')
+    # ax.legend(loc = 'upper center', bbox_to_anchor = (1.38, 1.03), ncol = 1, fancybox = True)
+    # plt.show()
 
 class SBS():
     # sbs is sequential backward selection
@@ -221,16 +222,17 @@ def seq_feature_select():
     sbs.fit(X_train_std, y_train)
 
     k_feat = [len(k) for k in sbs.subsets_]
-    plt.plot(k_feat, sbs.scores_, marker = 'o')
-    plt.ylim([0.5, 1.1])
-    plt.ylabel('Accuracy')
-    plt.xlabel('Number of features')
-    plt.grid()
+    # plt.plot(k_feat, sbs.scores_, marker = 'o')
+    # plt.ylim([0.5, 1.1])
+    # plt.ylabel('Accuracy')
+    # plt.xlabel('Number of features')
+    # plt.grid()
     # plt.show()
 
     # get which 5 features are the key features
     k5 = list(sbs.subsets_[8])
-    print (df_wine.columns[1:][k5])
+    print sbs.subsets_
+    # print (df_wine.columns[1:][k5])
 
     # validate knn in the original test data
     knn.fit(X_train_std, y_train)
@@ -275,11 +277,11 @@ def random_forest():
 
 
 if __name__ == '__main__':
-    NaN_data_deal()
+    # NaN_data_deal()
 
     # L1_regularization()
 
-    # seq_feature_select()
+    seq_feature_select()
 
     # random_forest()
     
