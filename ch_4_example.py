@@ -45,6 +45,9 @@ def NaN_data_deal():
     a = df.dropna(thresh = 4) # drop rows that have not at least 4 non-NaN values
     a = df.dropna(subset = ['C'])
     
+    '''replace the np.nan with others'''
+    a = a.replace(np.nan, 0, regex=True)
+
     '''mean imputation for the NaN data'''
     imr = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
     imr = imr.fit(df)
