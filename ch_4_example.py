@@ -45,6 +45,9 @@ def NaN_data_deal():
     a = df.dropna(thresh = 4) # drop rows that have not at least 4 non-NaN values
     a = df.dropna(subset = ['C'])
     
+    '''del col'''
+    # df.drop([Column Name or list],inplace=True,axis=1)
+    
     '''replace the np.nan with others'''
     a = a.replace(np.nan, 0, regex=True)
 
