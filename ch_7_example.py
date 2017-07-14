@@ -1,3 +1,4 @@
+from itertools import product
 import matplotlib.pyplot as plt
 import math
 import numpy as np
@@ -10,6 +11,7 @@ from sklearn.base import clone
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import train_test_split
 from sklearn.externals import six
+from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import auc
 from sklearn.metrics import roc_curve
@@ -176,7 +178,58 @@ def simple_majority_vote():
     all_clf = [pipe1, clf2, pipe3, mv_clf]
     for clf, label in zip(all_clf, clf_labels): 
         scores = cross_val_score(estimator = clf, X = X_train, y = y_train, cv = 10, scoring = 'roc_auc')
-        print ('Accuracy: {score_mean:.2f} (+/- {score_std:.2f}) [{label}]'.format(score_mean = scores.mean(), score_std = scores.std(), label = label))
+        # print ('Accuracy: {score_mean:.2f} (+/- {score_std:.2f}) [{label}]'.format(score_mean = scores.mean(), score_std = scores.std(), label = label))
+
+    # # plot the ROC comparision plot
+    # colors = ['black', 'orange', 'blue', 'green']
+    # linestyles = [':', '--', '-.', '-']
+    # for clf, label, clr, ls in zip(all_clf, clf_labels, colors, linestyles):
+    #     # assume the label of the positive class is 1
+    #     y_pred = clf.fit(X_train, y_train).predict_proba(X_test)[:, 1]
+    #     fpr, tpr, thresholds = roc_curve(y_true = y_test, y_score = y_pred)
+    #     roc_auc = auc(x = fpr, y = tpr)
+    #     plt.plot(fpr, tpr, color = clr, linestyle = ls, label = '{label} (auc = {roc_auc:.2f})'.format(label = label, roc_auc = roc_auc))
+    # plt.legend(loc = 'lower right')
+    # plt.plot([0, 1], [0, 1], linestyle = '--', color = 'gray', linewidth = 2)
+    # plt.xlim([-.1, 1.1])
+    # plt.ylim([-.1, 1.1])
+    # plt.grid()
+    # plt.xlabel('False Positive Rate')
+    # plt.ylabel('True Positive Rate')
+    # plt.show()
+
+    # # plot the decision region
+    # sc = StandardScaler()
+    # X_train_std = sc.fit_transform(X_train)
+    # x_min = X_train_std[:, 0].min() - 1
+    # x_max = X_train_std[:, 0].max() + 1
+    # y_min = X_train_std[: ,1].min() - 1
+    # y_max = X_train_std[: ,1].max() + 1
+
+    # xx, yy = np.meshgrid(np.arange(x_min, x_max, .1), np.arange(y_min, y_max, .1))
+    # f, axarr = plt.subplots(nrows = 2, ncols = 2, sharex = 'col', sharey = 'row', figsize = (7, 5))
+
+    # for idx, clf, tt in zip(product([0, 1], [0, 1]), all_clf, clf_labels):
+    #     clf.fit(X_train_std, y_train)
+    #     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    #     Z = Z.reshape(xx.shape)
+    #     axarr[idx[0], idx[1]].contourf(xx, yy, Z, alpha = .3)
+    #     axarr[idx[0], idx[1]].scatter(X_train_std[y_train == 0, 0], X_train_std[y_train == 0, 1], c = 'blue', marker = '^', s = 50)
+    #     axarr[idx[0], idx[1]].scatter(X_train_std[y_train == 1, 0], X_train_std[y_train == 1, 1], c = 'red', marker = 'o', s = 50)
+    #     axarr[idx[0], idx[1]].set_title(tt)
+    # plt.text(-3.5, -4.5, s = 'Sepal width [standardized]', ha = 'center', va = 'center', fontsize = 12)
+    # plt.text(-10.5, 4.5, s = 'Petal length [standardized]', ha = 'center', va = 'center', fontsize = 12, rotation = 90)
+    # plt.show()
+
+    # page 216/241
+    print mv_clf.get_params()
+    # params = {'decisiontreeclassifier__max_depth': [1, 2], 'pipleline-1__clf__C': [.001, .1, 100.0]}
+    # grid = GridSearchCV(estimator = mv_clf, param_grid = params, cv = 10, scoring = 'roc_auc')
+    # grid.fit(X_train, y_train)
+
+    # for params, mean_score, scores in grid.grid_scores_:
+    #     print ('{mean_score:3f} +/- {scores_std:2f} {params}'.format(mean_score = mean_score, scores_std = scores.std()/2, params = params))
+
 
 
 if __name__ == '__main__':
