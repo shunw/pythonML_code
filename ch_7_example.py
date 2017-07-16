@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import operator
+import pandas as pd
 from scipy.misc import comb
 from sklearn import datasets
 from sklearn.base import BaseEstimator
@@ -10,9 +11,12 @@ from sklearn.base import ClassifierMixin
 from sklearn.base import clone  
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.externals import six
 from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 from sklearn.metrics import auc
 from sklearn.metrics import roc_curve
 from sklearn.neighbors import KNeighborsClassifier
@@ -222,19 +226,117 @@ def simple_majority_vote():
     # plt.show()
 
     # page 216/241
-    print mv_clf.get_params()
-    # params = {'decisiontreeclassifier__max_depth': [1, 2], 'pipleline-1__clf__C': [.001, .1, 100.0]}
-    # grid = GridSearchCV(estimator = mv_clf, param_grid = params, cv = 10, scoring = 'roc_auc')
-    # grid.fit(X_train, y_train)
+    # print mv_clf.get_params()
+    params = {'decisiontreeclassifier__max_depth': [1, 2], 'pipeline-1__clf__C': [.001, .1, 100.0]}
+    grid = GridSearchCV(estimator = mv_clf, param_grid = params, cv = 10, scoring = 'roc_auc')
+    grid.fit(X_train, y_train)
 
-    # for params, mean_score, scores in grid.grid_scores_:
-    #     print ('{mean_score:3f} +/- {scores_std:2f} {params}'.format(mean_score = mean_score, scores_std = scores.std()/2, params = params))
+    for params, mean_score, scores in grid.grid_scores_:
+        print ('{mean_score:3f} +/- {scores_std:2f} {params}'.format(mean_score = mean_score, scores_std = scores.std()/2, params = params))
 
+def bagging_sample():
+    df_wine = pd.read_csv('wine.data', header = None)
+    df_wine.columns = ['Class label', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols', 'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue', 'OD289/OD315 of diluted wines', 'Proline']
+    df_wine = df_wine[df_wine['Class label'] != 1]
+    y = df_wine['Class label'].values
+    X = df_wine[['Alcohol', 'Hue']].values
+
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .4, random_state = 1)
+
+    tree = DecisionTreeClassifier(criterion = 'entropy', max_depth = None, random_state = 1)
+    bag = BaggingClassifier(base_estimator = tree, n_estimators = 500, max_samples = 1.0, max_features = 1.0, bootstrap = True, bootstrap_features = False, n_jobs = 1, random_state = 1)
+
+    tree = tree.fit(X_train, y_train)
+    y_train_pred = tree.predict(X_train)
+    y_test_pred = tree.predict(X_test)
+    tree_train = accuracy_score(y_train, y_train_pred)
+    tree_test = accuracy_score(y_test, y_test_pred)
+    print ('Decision tree train/ test accuracies {tree_train:.3f}/{tree_test:.3f}'.format(tree_train = tree_train, tree_test = tree_test))
+
+    bag = bag.fit(X_train, y_train)
+    y_train_pred = bag.predict(X_train)
+    y_test_pred = bag.predict(X_test)
+    bag_train = accuracy_score(y_train, y_train_pred)
+    bag_test = accuracy_score(y_test, y_test_pred)
+    print ('Bagging train/ test accuracies {bag_train:.3f}/{bag_test:.3f}'.format(bag_train = bag_train, bag_test = bag_test))
+
+    # x_min = X_train[:, 0].min() - 1
+    # x_max = X_train[:, 0].max() + 1
+    # y_min = X_train[:, 1].min() - 1
+    # y_max = X_train[:, 1].max() + 1
+    # xx, yy = np.meshgrid(np.arange(x_min, x_max, .1), np.arange(y_min, y_max, .1))
+    # f, axarr = plt.subplots(nrows = 1, ncols = 2, sharex = 'col', sharey = 'row', figsize = (8, 3))
+    # # print ('X_train is {x_train}'.format(x_train = X_train[y_train == 0]))
+    # # print ('y_train is {y_train}'.format(y_train = y_train))
+    # for idx, clf, tt in zip([0, 1], [tree, bag], ['Decision Tree', 'Bagging']):
+    #     clf.fit(X_train, y_train)
+
+    #     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    #     Z = Z.reshape(xx.shape)
+    #     # print ('idx: {idx}: X.shape is {x_shape}'.format(idx = idx, x_shape = X_train[y_train == 1].shape))
+    #     # print (X_train[y_train == 0])
+    #     axarr[idx].contourf(xx, yy, Z, alpha = .3)
+    #     axarr[idx].scatter(X_train[y_train == 0, 0], X_train[y_train == 0, 1], c = 'blue', marker = '^', alpha = .9)
+    #     axarr[idx].scatter(X_train[y_train == 1, 0], X_train[y_train == 1, 1], c = 'red', marker = 'o', alpha = .9)
+    #     axarr[idx].set_title(tt)
+
+    # axarr[0].set_ylabel('Alcohol', fontsize = 12)
+    # plt.text(10.2, -0.75, s = 'Hue', ha = 'center', va = 'center', fontsize = 12)
+    # plt.show()
+
+def ada_boost():
+    df_wine = pd.read_csv('wine.data', header = None)
+    df_wine.columns = ['Class label', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols', 'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue', 'OD289/OD315 of diluted wines', 'Proline']
+    df_wine = df_wine[df_wine['Class label'] != 1]
+    y = df_wine['Class label'].values
+    X = df_wine[['Alcohol', 'Hue']].values
+    # X = df_wine.iloc[:, 1:].values
+
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .4, random_state = 1)
+
+    tree = DecisionTreeClassifier(criterion = "entropy", max_depth = None, random_state = 0)
+    ada = AdaBoostClassifier(base_estimator = tree, n_estimators = 500, learning_rate = .1, random_state = 0)
+    tree = tree.fit(X_train, y_train)
+    y_train_pred = tree.predict(X_train)
+    y_test_pred = tree.predict(X_test)
+    tree_train = accuracy_score(y_train, y_train_pred)
+    tree_test = accuracy_score(y_test, y_test_pred)
+    print ('Decision tree train/test accuracies {tree_train:.3f} / {tree_test:.3f}'.format(tree_train = tree_train, tree_test = tree_test))
+
+    ada = ada.fit(X_train, y_train)
+    y_train_pred = ada.predict(X_train)
+    y_test_pred = ada.predict(X_test)
+    ada_train = accuracy_score(y_train, y_train_pred)
+    ada_test = accuracy_score(y_test, y_test_pred)
+    print ('AdaBoost train/test accuracies {ada_train:.3f} / {ada_test:.3f}'.format(ada_train = ada_train, ada_test = ada_test))
+
+    x_min = X_train[:, 0].min() - 1
+    x_max = X_train[:, 0].max() + 1
+    y_min = X_train[:, 1].min() - 1
+    y_max = X_train[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, .1), np.arange(y_min, y_max, .1))
+    f, axarr = plt.subplots(1, 2, sharex = 'col', sharey = 'row', figsize = (8, 3))
+    for idx, clf, tt in zip([0, 1], [tree, ada], ['Decision Tree', 'AdaBoost']):
+        clf.fit(X_train, y_train)
+        Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+        Z = Z.reshape(xx.shape)
+        axarr[idx].contourf(xx, yy, Z, alpha = .3)
+        axarr[idx].scatter(X_train[y_train == 1, 0], X_train[y_train == 1, 1], c = 'red', marker = 'o')
+    axarr[idx].set_title(tt)
+    axarr[0].set_ylabel('Alcohol', fontsize = 12)
+    plt.text(10.2, -.75, s = 'Hue', ha = 'center', va = 'center', fontsize = 12)
+    plt.show()
 
 
 if __name__ == '__main__':
     # print ensemble_error(n_classifier = 11, error = .25)
     # ensembles_errors()
-    simple_majority_vote()
 
+    # simple_majority_vote()
+    # bagging_sample()
+    ada_boost()
     # page 238/ 213
