@@ -10,7 +10,8 @@ from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import clone  
 from sklearn.cross_validation import cross_val_score
-from sklearn.cross_validation import train_test_split
+# from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.externals import six
@@ -262,29 +263,29 @@ def bagging_sample():
     bag_test = accuracy_score(y_test, y_test_pred)
     print ('Bagging train/ test accuracies {bag_train:.3f}/{bag_test:.3f}'.format(bag_train = bag_train, bag_test = bag_test))
 
-    # x_min = X_train[:, 0].min() - 1
-    # x_max = X_train[:, 0].max() + 1
-    # y_min = X_train[:, 1].min() - 1
-    # y_max = X_train[:, 1].max() + 1
-    # xx, yy = np.meshgrid(np.arange(x_min, x_max, .1), np.arange(y_min, y_max, .1))
-    # f, axarr = plt.subplots(nrows = 1, ncols = 2, sharex = 'col', sharey = 'row', figsize = (8, 3))
-    # # print ('X_train is {x_train}'.format(x_train = X_train[y_train == 0]))
-    # # print ('y_train is {y_train}'.format(y_train = y_train))
-    # for idx, clf, tt in zip([0, 1], [tree, bag], ['Decision Tree', 'Bagging']):
-    #     clf.fit(X_train, y_train)
+    x_min = X_train[:, 0].min() - 1
+    x_max = X_train[:, 0].max() + 1
+    y_min = X_train[:, 1].min() - 1
+    y_max = X_train[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, .1), np.arange(y_min, y_max, .1))
+    f, axarr = plt.subplots(nrows = 1, ncols = 2, sharex = 'col', sharey = 'row', figsize = (8, 3))
+    # print ('X_train is {x_train}'.format(x_train = X_train[y_train == 0]))
+    # print ('y_train is {y_train}'.format(y_train = y_train))
+    for idx, clf, tt in zip([0, 1], [tree, bag], ['Decision Tree', 'Bagging']):
+        clf.fit(X_train, y_train)
 
-    #     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-    #     Z = Z.reshape(xx.shape)
-    #     # print ('idx: {idx}: X.shape is {x_shape}'.format(idx = idx, x_shape = X_train[y_train == 1].shape))
-    #     # print (X_train[y_train == 0])
-    #     axarr[idx].contourf(xx, yy, Z, alpha = .3)
-    #     axarr[idx].scatter(X_train[y_train == 0, 0], X_train[y_train == 0, 1], c = 'blue', marker = '^', alpha = .9)
-    #     axarr[idx].scatter(X_train[y_train == 1, 0], X_train[y_train == 1, 1], c = 'red', marker = 'o', alpha = .9)
-    #     axarr[idx].set_title(tt)
+        Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+        Z = Z.reshape(xx.shape)
+        # print ('idx: {idx}: X.shape is {x_shape}'.format(idx = idx, x_shape = X_train[y_train == 1].shape))
+        # print (X_train[y_train == 0])
+        axarr[idx].contourf(xx, yy, Z, alpha = .3)
+        axarr[idx].scatter(X_train[y_train == 0, 0], X_train[y_train == 0, 1], c = 'blue', marker = '^', alpha = .9)
+        axarr[idx].scatter(X_train[y_train == 1, 0], X_train[y_train == 1, 1], c = 'red', marker = 'o', alpha = .9)
+        axarr[idx].set_title(tt)
 
-    # axarr[0].set_ylabel('Alcohol', fontsize = 12)
-    # plt.text(10.2, -0.75, s = 'Hue', ha = 'center', va = 'center', fontsize = 12)
-    # plt.show()
+    axarr[0].set_ylabel('Alcohol', fontsize = 12)
+    plt.text(10.2, -0.75, s = 'Hue', ha = 'center', va = 'center', fontsize = 12)
+    plt.show()
 
 def ada_boost():
     df_wine = pd.read_csv('wine.data', header = None)
@@ -298,7 +299,7 @@ def ada_boost():
     y = le.fit_transform(y)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .4, random_state = 1)
 
-    tree = DecisionTreeClassifier(criterion = "entropy", max_depth = None, random_state = 0)
+    tree = DecisionTreeClassifier(criterion = "entropy", max_depth = 1, random_state = 0)
     ada = AdaBoostClassifier(base_estimator = tree, n_estimators = 500, learning_rate = .1, random_state = 0)
     tree = tree.fit(X_train, y_train)
     y_train_pred = tree.predict(X_train)
@@ -339,4 +340,4 @@ if __name__ == '__main__':
     # simple_majority_vote()
     # bagging_sample()
     ada_boost()
-    # page 238/ 213
+    
