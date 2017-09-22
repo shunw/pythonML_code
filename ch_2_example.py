@@ -257,6 +257,8 @@ def iris_example():
     y = np.where(y == 'Iris-setosa', -1, 1)
     X = df.iloc[:100, [0, 2]].values
 
+    print (df.head())
+
     X_std = np.copy(X)
     X_std[:, 0] = (X_std[:, 0] - X_std[:, 0].mean()) / X_std[:, 0].std()
     X_std[:, 1] = (X_std[:, 1] - X_std[:, 1].mean()) / X_std[:, 1].std()
@@ -316,19 +318,19 @@ def iris_example():
     # plt.show()
 
     ''''''
-    ada = adalineSGD(n_iter = 15, eta = .01, random_state = 1)
-    ada.fit(X_std, y)
-    plot_decision_regions(X_std, y, classifier = ada)
-    plt.title('Adaline - Stochastic Gradient Descent')
-    plt.xlabel('sepal length [standardized]')
-    plt.ylabel('petal length [standardized]')
-    plt.legend(loc = 'upper left')
-    # plt.show()
-    plt.plot(range(1, len(ada.cost_) + 1), ada.cost_, marker = 'o')
-    plt.xlabel('Epochs')
-    plt.ylabel('Average Cost')
-    # plt.show()
-    ada.partial_fit(X_std[0, :], y[0])
+    # ada = adalineSGD(n_iter = 15, eta = .01, random_state = 1)
+    # ada.fit(X_std, y)
+    # plot_decision_regions(X_std, y, classifier = ada)
+    # plt.title('Adaline - Stochastic Gradient Descent')
+    # plt.xlabel('sepal length [standardized]')
+    # plt.ylabel('petal length [standardized]')
+    # plt.legend(loc = 'upper left')
+    # # plt.show()
+    # plt.plot(range(1, len(ada.cost_) + 1), ada.cost_, marker = 'o')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Average Cost')
+    # # plt.show()
+    # ada.partial_fit(X_std[0, :], y[0])
 
 
 
