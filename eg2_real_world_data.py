@@ -7,8 +7,10 @@ from imblearn.metrics import classification_report_imbalanced
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import seaborn as sns
 
 import numpy as np
+import pandas as pd
 
 from sklearn.datasets import load_iris
 from sklearn.svm import LinearSVC
@@ -71,5 +73,28 @@ def multi_class_under_sampling():
 
     plt.show()
 
+def wendy_try_iris():
+    '''
+    EXAMPLE: Multiclass classification with under-sampling
+    '''
+    RANDOM_STATE = 42
+
+    iris = load_iris()
+    # X, y = make_imbalance(iris.data, iris.target, ratio = {0:25, 1:50, 2:50}, random_state = 0)
+    X = pd.DataFrame(iris.data, columns = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width'])
+    y = pd.DataFrame(iris.target, columns = ['Species'])
+
+    df = X
+    df['Species'] = y
+    
+    # print (df.head())
+    # print (y.tail())
+    # iris = sns.load_dataset("iris")
+    # print (iris)
+    sns.set(style='whitegrid', context='notebook')    
+    cols = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width']
+    sns.pairplot(df, vars =  cols, size=2.5, hue = 'Species')
+    plt.show()
+
 if __name__ == '__main__':
-    multi_class_under_sampling()
+    wendy_try_iris()
