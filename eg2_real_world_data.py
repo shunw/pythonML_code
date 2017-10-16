@@ -36,7 +36,7 @@ def scatter_plot(x_ls, y_ls, classifier, resolution = .02):
         plt.scatter(x = x_ls[y_ls == c1, 0], y = x_ls[y_ls == c1, 1], 
                     alpha = .8, c = cmap(idx), 
                     marker = markers[idx], label = c1)
-    plt.show()
+    # plt.show()
 
 def multi_class_under_sampling():
     '''
@@ -58,9 +58,18 @@ def multi_class_under_sampling():
     pipeline = make_pipeline(NearMiss(version = 2, random_state = RANDOM_STATE), LinearSVC(random_state = RANDOM_STATE))
     pipeline.fit(X_train, y_train)
 
-    scatter_plot(X[:, [1, 2]], y, pipeline)
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax1.scatter_plot(X[:, [1, 2]], y, pipeline)
     # print (classification_report_imbalanced(y_test, pipeline.predict(X_test)))
 
+    pipeline_1= make_pipeline(NearMiss(version = 1, random_state = RANDOM_STATE), LinearSVC(random_state = RANDOM_STATE))
+    pipeline_1.fit(X_train, y_train)
+
+    ax2 = fig.add_subplot(212)
+    ax2.scatter_plot(X[:, [1, 2]], y, pipeline_1)
+
+    plt.show()
 
 if __name__ == '__main__':
     multi_class_under_sampling()
