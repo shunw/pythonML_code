@@ -8,8 +8,10 @@ from imblearn.under_sampling import NearMiss
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import seaborn as sns
 
 import numpy as np
+import pandas as pd
 
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -50,7 +52,7 @@ def deci_bdry_plot_2d(x_ls, y_ls, classifier, resolution = .02):
         plt.scatter(x = x_ls[y_ls == c1, 0], y = x_ls[y_ls == c1, 1], 
                     alpha = .8, c = cmap(idx), 
                     marker = markers[idx], label = c1)
-    plt.show()
+    # plt.show()
 
 def multi_class_under_sampling():
     '''
@@ -93,10 +95,45 @@ def multi_class_under_sampling():
 
     # print (classification_report_imbalanced(y_test, pipeline_nm.predict(X_test)))
     # deci_bdry_plot_2d(X[:, [1, 2]], y, pipeline_nm)
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax1.scatter_plot(X[:, [1, 2]], y, pipeline)
+    # print (classification_report_imbalanced(y_test, pipeline.predict(X_test)))
+
+    pipeline_1= make_pipeline(NearMiss(version = 1, random_state = RANDOM_STATE), LinearSVC(random_state = RANDOM_STATE))
+    pipeline_1.fit(X_train, y_train)
+
+    ax2 = fig.add_subplot(212)
+    ax2.scatter_plot(X[:, [1, 2]], y, pipeline_1)
+
+    plt.show()
+
+def wendy_try_iris():
+    '''
+    EXAMPLE: Multiclass classification with under-sampling
+    '''
+    RANDOM_STATE = 42
+
+    iris = load_iris()
+    # X, y = make_imbalance(iris.data, iris.target, ratio = {0:25, 1:50, 2:50}, random_state = 0)
+    X = pd.DataFrame(iris.data, columns = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width'])
+    y = pd.DataFrame(iris.target, columns = ['Species'])
+
+    df = X
+    df['Species'] = y
+    
+    # print (df.head())
+    # print (y.tail())
+    # iris = sns.load_dataset("iris")
+    # print (iris)
+    sns.set(style='whitegrid', context='notebook')    
+    cols = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width']
+    sns.pairplot(df, vars =  cols, size=2.5, hue = 'Species')
+    plt.show()
 
     # print (classification_report_imbalanced(y_test, pipeline_cc.predict(X_test)))
     # deci_bdry_plot_2d(X[:, [1, 2]], y, pipeline_cc)
     
     
 if __name__ == '__main__':
-    multi_class_under_sampling()
+    wendy_try_iris()
