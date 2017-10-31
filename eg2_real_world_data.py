@@ -87,14 +87,14 @@ def wendy_try_iris():
     df = X
     df['Species'] = y
     
-    # print (df.head())
-    # print (y.tail())
-    # iris = sns.load_dataset("iris")
-    # print (iris)
-    sns.set(style='whitegrid', context='notebook')    
-    cols = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width']
-    sns.pairplot(df, vars =  cols, size=2.5, hue = 'Species')
-    plt.show()
+    '''pair plot for the features'''
+    # sns.set(style='whitegrid', context='notebook')    
+    # cols = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width']
+    # sns.pairplot(df, vars =  cols, size=2.5, hue = 'Species')
+    # plt.show()
+
+    '''dimension reduction'''
+    
 
 if __name__ == '__main__':
     wendy_try_iris()
