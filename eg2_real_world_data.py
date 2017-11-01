@@ -122,14 +122,14 @@ def wendy_try_iris():
     df = X
     df['Species'] = y
     
-    # print (df.head())
-    # print (y.tail())
-    # iris = sns.load_dataset("iris")
-    # print (iris)
-    sns.set(style='whitegrid', context='notebook')    
-    cols = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width']
-    sns.pairplot(df, vars =  cols, size=2.5, hue = 'Species')
-    plt.show()
+    '''pair plot for the features'''
+    # sns.set(style='whitegrid', context='notebook')    
+    # cols = ['Sepal_length', 'Sepal_width', 'Petal_length', 'Petal_width']
+    # sns.pairplot(df, vars =  cols, size=2.5, hue = 'Species')
+    # plt.show()
+
+    '''dimension reduction'''
+    
 
     # print (classification_report_imbalanced(y_test, pipeline_cc.predict(X_test)))
     # deci_bdry_plot_2d(X[:, [1, 2]], y, pipeline_cc)
