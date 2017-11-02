@@ -63,3 +63,10 @@ if __name__ == '__main__':
     x = np.array(['b', 'a'], dtype=np.object)
     # print (np.unique(x))
     print (x)
+
+    '''
+    QUESTION: 
+    1. for the ? item, how to deal with it? 
+        - replace it with np.nan at the very beginning? (this would make the np.unique formula failure, and hard to transfer the string data into number, which is necessary during the data preprocess)
+        - 
+    '''
