@@ -29,13 +29,29 @@ def replace_qm(df, df_col_ls):
         df[n] = df[n].replace(' ?', np.NaN)
     return df
 
+def make_class_map(df, df_col_ls):
+    '''
+    MAKE class map for each str columns
+    =====================================
+    df_col_ls: list/ col name list
+    df: dataframe to be used to replae the question mark
+    cls_map_dict: dict/ connect column name with the class mapping
+    '''
+    cls_map_dict = dict()
+    for n in df_col_ls:
+        if df[n].dtype == 'int64': continue
+        cls_map_dict[n] = {label:idx for idx,label in enumerate(np.unique(df[n]))}
+    return cls_map_dict
+
+
+
 if __name__ == '__main__':
     df_adult = pd.read_csv('adult.data', header = None)
     name_col = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'target']
     df_adult.columns = name_col
-    print (df_adult.iloc[26:27, ])
+    # print (df_adult.iloc[26:27, ])
     # check_qm(df_adult, name_col)
     
     df_adult = replace_qm(df_adult, name_col)
-    
-    print (df_adult.iloc[26:28, ])
+    a = make_class_map(df_adult, name_col)
+    print (a)
