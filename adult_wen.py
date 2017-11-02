@@ -40,7 +40,11 @@ def make_class_map(df, df_col_ls):
     cls_map_dict = dict()
     for n in df_col_ls:
         if df[n].dtype == 'int64': continue
+        print (df[n])
+        print (np.unique(df[n]))
         cls_map_dict[n] = {label:idx for idx,label in enumerate(np.unique(df[n]))}
+
+        print (cls_map_dict)
     return cls_map_dict
 
 
@@ -53,5 +57,9 @@ if __name__ == '__main__':
     # check_qm(df_adult, name_col)
     
     df_adult = replace_qm(df_adult, name_col)
-    a = make_class_map(df_adult, name_col)
-    print (a)
+    # a = make_class_map(df_adult, name_col)
+    # print (a)
+
+    x = np.array(['b', 'a'], dtype=np.object)
+    # print (np.unique(x))
+    print (x)
