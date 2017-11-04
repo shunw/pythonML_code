@@ -2,6 +2,14 @@ import numpy as np
 import pandas as pd
 import re
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+import pip
+
+from sklearn.cross_validation import train_test_split
+from sklearn.preprocessing import StandardScaler
+
 def check_qm(df, df_col_ls):
     '''
     CHECK the question mark number
@@ -79,11 +87,42 @@ if __name__ == '__main__':
     cls_map_dict = make_class_map(df_adult, name_col)
     df_adult = do_class_map(df_adult, name_col, cls_map_dict)
     
+    '''
+    DATA DEAL
+    ====================
+    0. make the pair plot to check feature relationship
+    1. make X, y; split into training data and test data; standarize the data; remove the related items. 
+    2. choose the algorithm 
+    3. verification/ plot
+
+    addition: 
+    may choose some algorithm to check the important feature
+    '''
+    
+    # 0
+    # according to the understanding of the col, [education <-> education num], [race <-> native country]
+    sns.set(style='whitegrid', context='notebook')    
+    g = sns.PairGrid(df_adult, vars =  name_col[:-1], hue = name_col[-1])
+    g = g.map_diag(plt.hist, histtype = 'step', linewidth = 3)
+    g = g.map_offdiag(plt.scatter)
+    g = g.add_legend()
+    # plt.savefig('adult_pair.png')
+    
+
+    # 1 w/o moving the related items
+    X = df_adult[name_col[:-1]].values
+    y = df_adult[name_col[-1]].values
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .3, random_state = 0)
+
+    stdsc = StandardScaler()
+    X_train_std = stdsc.fit_transform(X_train)
+    X_test_std = stdsc.transform(X_test)
 
 
+    
     '''
     QUESTION: 
-    1. for the ? item, how to deal with it? 
-        - replace it with np.nan at the very beginning? (this would make the np.unique formula failure, and hard to transfer the string data into number, which is necessary during the data preprocess)
-        - 
+    1. for the pair plot
+        - if the features are too much, the pair plot will be created very slow (like adult, it has like 14 features), even if you want to change the scale of the plot, it will take a long time. 
     '''
