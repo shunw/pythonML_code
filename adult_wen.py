@@ -10,6 +10,11 @@ import pip
 from sklearn.cross_validation import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics  import roc_auc_score, average_precision_score
+
 def check_qm(df, df_col_ls):
     '''
     CHECK the question mark number
@@ -93,19 +98,21 @@ if __name__ == '__main__':
     0. make the pair plot to check feature relationship
     1. make X, y; split into training data and test data; standarize the data; remove the related items. 
     2. choose the algorithm 
-    3. verification/ plot
+    3. verification/ plot the decision boundary
 
     addition: 
     may choose some algorithm to check the important feature
+    reduce the data dimension
     '''
     
     # 0
     # according to the understanding of the col, [education <-> education num], [race <-> native country]
-    sns.set(style='whitegrid', context='notebook')    
-    g = sns.PairGrid(df_adult, vars =  name_col[:-1], hue = name_col[-1])
-    g = g.map_diag(plt.hist, histtype = 'step', linewidth = 3)
-    g = g.map_offdiag(plt.scatter)
-    g = g.add_legend()
+
+    # sns.set(style='whitegrid', context='notebook')    
+    # g = sns.PairGrid(df_adult, vars =  name_col[:-1], hue = name_col[-1])
+    # g = g.map_diag(plt.hist, histtype = 'step', linewidth = 3)
+    # g = g.map_offdiag(plt.scatter)
+    # g = g.add_legend()
     # plt.savefig('adult_pair.png')
     
 
@@ -119,10 +126,29 @@ if __name__ == '__main__':
     X_train_std = stdsc.fit_transform(X_train)
     X_test_std = stdsc.transform(X_test)
 
+    # 2 --- algorithm lg
+    lr = LogisticRegression(C = 1000, random_state = 0)
+    lr.fit(X_train_std, y_train)
+    y_pred = lr.predict(X_test_std)
+    # print (y_pred)
+    y_prob = lr.predict_proba(X_test_std)[:, 1]
+
+
+    print('Precision: %.3f' % precision_score(y_true = y_test, y_pred = y_pred))
+    print('Recall: %.3f' % recall_score(y_true = y_test, y_pred = y_pred))
+    print('F1: %.3f' % f1_score(y_true = y_test, y_pred = y_pred))
+    print('roc_auc: %.3f' % roc_auc_score(y_true = y_test, y_score = y_prob))
+    print('avg_precision: %.3f' % average_precision_score(y_true = y_test, y_score = y_prob))
+
+    # 2 --- algorithm 
 
     
     '''
     QUESTION: 
     1. for the pair plot
         - if the features are too much, the pair plot will be created very slow (like adult, it has like 14 features), even if you want to change the scale of the plot, it will take a long time. 
+    2. NEXT: 
+        - tune the parameter
+        - ? how to decrease the dimension. 
+        - remove all the missing data and check if the score will be changed. / also need to check the data qty before and after removing the missing data
     '''
