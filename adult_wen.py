@@ -12,6 +12,7 @@ from sklearn.preprocessing import StandardScaler
 
 from sklearn.linear_model import LogisticRegression
 
+from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.metrics  import roc_auc_score, average_precision_score
 
@@ -126,29 +127,37 @@ if __name__ == '__main__':
     X_train_std = stdsc.fit_transform(X_train)
     X_test_std = stdsc.transform(X_test)
 
-    # 2 --- algorithm lg
-    lr = LogisticRegression(C = 1000, random_state = 0)
-    lr.fit(X_train_std, y_train)
-    y_pred = lr.predict(X_test_std)
-    # print (y_pred)
-    y_prob = lr.predict_proba(X_test_std)[:, 1]
+    # # 2 --- algorithm lg
+    # lr = LogisticRegression(C = 1000, random_state = 0)
+    # lr.fit(X_train_std, y_train)
+    # y_pred = lr.predict(X_test_std)
+    # # print (y_pred)
+    # y_prob = lr.predict_proba(X_test_std)[:, 1]
 
 
-    print('Precision: %.3f' % precision_score(y_true = y_test, y_pred = y_pred))
-    print('Recall: %.3f' % recall_score(y_true = y_test, y_pred = y_pred))
-    print('F1: %.3f' % f1_score(y_true = y_test, y_pred = y_pred))
-    print('roc_auc: %.3f' % roc_auc_score(y_true = y_test, y_score = y_prob))
-    print('avg_precision: %.3f' % average_precision_score(y_true = y_test, y_score = y_prob))
+    # print('Precision: %.3f' % precision_score(y_true = y_test, y_pred = y_pred))
+    # print('Recall: %.3f' % recall_score(y_true = y_test, y_pred = y_pred))
+    # print('F1: %.3f' % f1_score(y_true = y_test, y_pred = y_pred))
+    # print('roc_auc: %.3f' % roc_auc_score(y_true = y_test, y_score = y_prob))
+    # print('avg_precision: %.3f' % average_precision_score(y_true = y_test, y_score = y_prob))
 
-    # 2 --- algorithm 
+    # 2-1 --- tunning parameter
+    # metric of the GridSearchCV: accuracy/ average_precision/ f1/ f1_micro/ f1_macro/ f1_weighted/ f1_samples/ neg_log_loss/ precision/ recall/ roc_auc
+    lr = LogisticRegression(random_state = 0)
+    gs = GridSearchCV(estimator = lr, param_grid = {'C': [10, 100, 1000, 10000, 100000]}, scoring = 'average_precision', cv = 10)
+    gs = gs.fit(X_train_std, y_train)
+    print (gs.best_score_)
+    print (gs.best_params_)
 
     
     '''
     QUESTION: 
     1. for the pair plot
         - if the features are too much, the pair plot will be created very slow (like adult, it has like 14 features), even if you want to change the scale of the plot, it will take a long time. 
-    2. NEXT: 
+    
+    NEXT: 
         - tune the parameter
+        - check the learning curves/ validation curves
         - ? how to decrease the dimension. 
         - remove all the missing data and check if the score will be changed. / also need to check the data qty before and after removing the missing data
     '''
