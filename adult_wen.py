@@ -10,6 +10,7 @@ import pip
 from sklearn.cross_validation import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+from sklearn.learning_curve import validation_curve
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.grid_search import GridSearchCV
@@ -144,10 +145,32 @@ if __name__ == '__main__':
     # 2-1 --- tunning parameter
     # metric of the GridSearchCV: accuracy/ average_precision/ f1/ f1_micro/ f1_macro/ f1_weighted/ f1_samples/ neg_log_loss/ precision/ recall/ roc_auc
     lr = LogisticRegression(random_state = 0)
-    gs = GridSearchCV(estimator = lr, param_grid = {'C': [10, 100, 1000, 10000, 100000]}, scoring = 'average_precision', cv = 10)
-    gs = gs.fit(X_train_std, y_train)
-    print (gs.best_score_)
-    print (gs.best_params_)
+    param_range = [10, 100, 1000, 10000, 100000]
+    # gs = GridSearchCV(estimator = lr, param_grid = {'C': param_range}, scoring = 'average_precision', cv = 10)
+    # gs = gs.fit(X_train_std, y_train)
+    # print (gs.best_score_)
+    # print (gs.best_params_)
+
+    train_scores, test_scores = validation_curve(estimator = lr, X = X_train_std, y = y_train, param_name = 'C', param_range = param_range, cv = 10, scoring = "average_precision")
+    train_mean = np.mean(train_scores, axis = 1)
+    train_std = np.std(train_scores, axis = 1)
+
+    test_mean = np.mean(test_scores, axis = 1)
+    test_std = np.std(test_scores, axis = 1)
+    
+    plt.plot(param_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
+    plt.fill_between(param_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
+
+    plt.plot(param_range, test_mean, color = 'green', marker = 's', markersize = 5, linestyle = '--', label = 'validation accuracy')
+    plt.fill_between(param_range, test_mean + test_std, test_mean - test_std, alpha = .15, color = 'green')
+    
+    plt.grid()
+    plt.xscale('log')
+    plt.legend(loc = 'lower right')
+    plt.xlabel('Parameter C')
+    plt.ylabel('Accuracy')
+    plt.ylim([.687, .688])
+    plt.show()
 
     
     '''
