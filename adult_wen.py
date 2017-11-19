@@ -12,6 +12,7 @@ from sklearn.preprocessing import StandardScaler
 
 from sklearn.learning_curve import validation_curve
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
@@ -152,19 +153,57 @@ if __name__ == '__main__':
     # print('roc_auc: %.3f' % roc_auc_score(y_true = y_test, y_score = y_prob))
     # print('avg_precision: %.3f' % average_precision_score(y_true = y_test, y_score = y_prob))
 
-    # 2-1 --- tunning parameter
-    # metric of the GridSearchCV: accuracy/ average_precision/ f1/ f1_micro/ f1_macro/ f1_weighted/ f1_samples/ neg_log_loss/ precision/ recall/ roc_auc
+    # # 2-1 --- tunning parameter
+    # # metric of the GridSearchCV: accuracy/ average_precision/ f1/ f1_micro/ f1_macro/ f1_weighted/ f1_samples/ neg_log_loss/ precision/ recall/ roc_auc
 
-    # lr, change the parameter of C, penalty, or change the metric of the scoring won't change the training score/ test score a lot. 
-    lr = LogisticRegression(penalty = 'l2', random_state = 0)
-    param_range = [10, 100, 1000, 10000, 100000]
+    # # lr, change the parameter of C, penalty, or change the metric of the scoring won't change the training score/ test score a lot. 
+    # lr = LogisticRegression(penalty = 'l2', random_state = 0)
+    # param_range = [10, 100, 1000, 10000, 100000]
 
-    # gs = GridSearchCV(estimator = lr, param_grid = {'C': param_range}, scoring = 'average_precision', cv = 10)
-    # gs = gs.fit(X_train_std, y_train)
+    # # gs = GridSearchCV(estimator = lr, param_grid = {'C': param_range}, scoring = 'average_precision', cv = 10)
+    # # gs = gs.fit(X_train_std, y_train)
+    # # print (gs.best_score_)
+    # # print (gs.best_params_)
+
+    # train_scores, test_scores = validation_curve(estimator = lr, X = X_train_std, y = y_train, param_name = 'C', param_range = param_range, cv = 5, scoring = "roc_auc")
+    # train_mean = np.mean(train_scores, axis = 1)
+    # train_std = np.std(train_scores, axis = 1)
+
+    # test_mean = np.mean(test_scores, axis = 1)
+    # test_std = np.std(test_scores, axis = 1)
+    
+    # print ('train_mean: ', train_mean)
+    # print ('train_std: ', train_std)
+    # print ('test_mean: ', test_mean)
+    # print ('test_std: ', test_std)
+
+    # plt.plot(param_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
+    # plt.fill_between(param_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
+
+    # plt.plot(param_range, test_mean, color = 'green', marker = 's', markersize = 5, linestyle = '--', label = 'validation accuracy')
+    # plt.fill_between(param_range, test_mean + test_std, test_mean - test_std, alpha = .15, color = 'green')
+    
+    # plt.grid()
+    # plt.xscale('log')
+    # plt.legend(loc = 'lower right')
+    # plt.xlabel('Parameter C')
+    # plt.ylabel('Accuracy')
+    # plt.ylim([.5, .7])
+    # plt.show()
+    
+    # 3 decision tree
+    tree = DecisionTreeClassifier(random_state = 0)
+    param_range = ['entropy', 'gini' ]
+    depth_range = [3, 5, 7, 8, 9, 10, 11]
+    # tree.fit(X_train, y_train)
+
+    # gs = GridSearchCV(estimator = tree, param_grid = {'criterion': param_range, 'max_depth': depth_range}, scoring = 'accuracy', cv = 5)
+    # gs = gs.fit(X_train, y_train)
     # print (gs.best_score_)
     # print (gs.best_params_)
 
-    train_scores, test_scores = validation_curve(estimator = lr, X = X_train_std, y = y_train, param_name = 'C', param_range = param_range, cv = 5, scoring = "roc_auc")
+    tree_1 = DecisionTreeClassifier(criterion = "gini", random_state = 0)
+    train_scores, test_scores = validation_curve(estimator = tree_1, X = X_train, y = y_train, param_name = 'max_depth', param_range = depth_range, cv = 5, scoring = "roc_auc")
     train_mean = np.mean(train_scores, axis = 1)
     train_std = np.std(train_scores, axis = 1)
 
@@ -176,21 +215,20 @@ if __name__ == '__main__':
     print ('test_mean: ', test_mean)
     print ('test_std: ', test_std)
 
-    plt.plot(param_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
-    plt.fill_between(param_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
+    plt.plot(depth_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
+    plt.fill_between(depth_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
 
-    plt.plot(param_range, test_mean, color = 'green', marker = 's', markersize = 5, linestyle = '--', label = 'validation accuracy')
-    plt.fill_between(param_range, test_mean + test_std, test_mean - test_std, alpha = .15, color = 'green')
+    plt.plot(depth_range, test_mean, color = 'green', marker = 's', markersize = 5, linestyle = '--', label = 'validation accuracy')
+    plt.fill_between(depth_range, test_mean + test_std, test_mean - test_std, alpha = .15, color = 'green')
     
     plt.grid()
     plt.xscale('log')
     plt.legend(loc = 'lower right')
-    plt.xlabel('Parameter C')
+    plt.xlabel('Max Depth')
     plt.ylabel('Accuracy')
-    plt.ylim([.5, .7])
+    # plt.ylim([.5, .7])
     plt.show()
-    
-    
+
     '''
     QUESTION: 
     1. for the pair plot
@@ -200,8 +238,10 @@ if __name__ == '__main__':
     
     NEXT: 
         - tune the parameter/ 
-            - check if there is any other parameter need to be tuned in the lr/
-            - begin to tune with the SVM
+            - [NA] check if there is any other parameter need to be tuned in the lr/
+            - [NA] begin to tune with the SVM
+            - ! according to some paper, try decision tree. And find some changes when tune the parameter. 
+
         - check the learning curves/ validation curves
             - 
         - ? how to decrease the dimension. 
