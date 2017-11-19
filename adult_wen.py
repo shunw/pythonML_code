@@ -87,10 +87,19 @@ if __name__ == '__main__':
     DATA PREPROCESS
     ====================
     1. strip the str; replace the '?' with 'N/A'
-    2. make the class_map
+    2. make the class_map, and set the data with 'N/A' label as the level -1
     3. replace the str/category into number. 
     '''
     df_adult = replace_qm(df_adult, name_col)
+    # print (df_adult.shape)
+
+    # drop all the "N/A" data
+    for i in name_col: 
+        # print (i)
+        df_adult = df_adult[~df_adult[i].isin(["N/A"])]
+        
+    # print (df_adult.shape)
+
     cls_map_dict = make_class_map(df_adult, name_col)
     df_adult = do_class_map(df_adult, name_col, cls_map_dict)
     
@@ -106,6 +115,7 @@ if __name__ == '__main__':
     may choose some algorithm to check the important feature
     reduce the data dimension
     '''
+
     
     # 0
     # according to the understanding of the col, [education <-> education num], [race <-> native country]
@@ -144,20 +154,28 @@ if __name__ == '__main__':
 
     # 2-1 --- tunning parameter
     # metric of the GridSearchCV: accuracy/ average_precision/ f1/ f1_micro/ f1_macro/ f1_weighted/ f1_samples/ neg_log_loss/ precision/ recall/ roc_auc
-    lr = LogisticRegression(random_state = 0)
+
+    # lr, change the parameter of C, penalty, or change the metric of the scoring won't change the training score/ test score a lot. 
+    lr = LogisticRegression(penalty = 'l2', random_state = 0)
     param_range = [10, 100, 1000, 10000, 100000]
+
     # gs = GridSearchCV(estimator = lr, param_grid = {'C': param_range}, scoring = 'average_precision', cv = 10)
     # gs = gs.fit(X_train_std, y_train)
     # print (gs.best_score_)
     # print (gs.best_params_)
 
-    train_scores, test_scores = validation_curve(estimator = lr, X = X_train_std, y = y_train, param_name = 'C', param_range = param_range, cv = 10, scoring = "average_precision")
+    train_scores, test_scores = validation_curve(estimator = lr, X = X_train_std, y = y_train, param_name = 'C', param_range = param_range, cv = 5, scoring = "roc_auc")
     train_mean = np.mean(train_scores, axis = 1)
     train_std = np.std(train_scores, axis = 1)
 
     test_mean = np.mean(test_scores, axis = 1)
     test_std = np.std(test_scores, axis = 1)
     
+    print ('train_mean: ', train_mean)
+    print ('train_std: ', train_std)
+    print ('test_mean: ', test_mean)
+    print ('test_std: ', test_std)
+
     plt.plot(param_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
     plt.fill_between(param_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
 
@@ -169,18 +187,24 @@ if __name__ == '__main__':
     plt.legend(loc = 'lower right')
     plt.xlabel('Parameter C')
     plt.ylabel('Accuracy')
-    plt.ylim([.687, .688])
+    plt.ylim([.5, .7])
     plt.show()
-
+    
     
     '''
     QUESTION: 
     1. for the pair plot
         - if the features are too much, the pair plot will be created very slow (like adult, it has like 14 features), even if you want to change the scale of the plot, it will take a long time. 
+    2. for the learning curve
+        - run one learning curve and it's hard to see the difference between the learning score between different parameter
     
     NEXT: 
-        - tune the parameter
+        - tune the parameter/ 
+            - check if there is any other parameter need to be tuned in the lr/
+            - begin to tune with the SVM
         - check the learning curves/ validation curves
+            - 
         - ? how to decrease the dimension. 
+            - after decrease the dimension, is it possible to run the pair plot
         - remove all the missing data and check if the score will be changed. / also need to check the data qty before and after removing the missing data
     '''
