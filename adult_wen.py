@@ -12,6 +12,7 @@ from sklearn.preprocessing import StandardScaler
 
 from sklearn.learning_curve import validation_curve
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.grid_search import GridSearchCV
@@ -83,6 +84,7 @@ if __name__ == '__main__':
     df_adult.columns = name_col
     # print (df_adult.iloc[26:27, ])
     # check_qm(df_adult, name_col)
+    
     
     '''
     DATA PREPROCESS
@@ -228,6 +230,11 @@ if __name__ == '__main__':
     plt.ylabel('Accuracy')
     # plt.ylim([.5, .7])
     plt.show()
+
+
+    # Gaussian Naive Bayes
+    gnb = GaussianNB()
+    gnb.fit(X_train, y_train)
 
     '''
     QUESTION: 
