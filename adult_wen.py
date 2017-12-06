@@ -193,48 +193,64 @@ if __name__ == '__main__':
     # plt.ylim([.5, .7])
     # plt.show()
     
-    # 3 decision tree
-    tree = DecisionTreeClassifier(random_state = 0)
-    param_range = ['entropy', 'gini' ]
-    depth_range = [3, 5, 7, 8, 9, 10, 11]
-    # tree.fit(X_train, y_train)
+    # # 3 decision tree
+    # tree = DecisionTreeClassifier(random_state = 0)
+    # param_range = ['entropy', 'gini' ]
+    # depth_range = [3, 5, 7, 8, 9, 10, 11]
+    # # tree.fit(X_train, y_train)
 
-    # gs = GridSearchCV(estimator = tree, param_grid = {'criterion': param_range, 'max_depth': depth_range}, scoring = 'accuracy', cv = 5)
-    # gs = gs.fit(X_train, y_train)
-    # print (gs.best_score_)
-    # print (gs.best_params_)
+    # # gs = GridSearchCV(estimator = tree, param_grid = {'criterion': param_range, 'max_depth': depth_range}, scoring = 'accuracy', cv = 5)
+    # # gs = gs.fit(X_train, y_train)
+    # # print (gs.best_score_)
+    # # print (gs.best_params_)
 
-    tree_1 = DecisionTreeClassifier(criterion = "gini", random_state = 0)
-    train_scores, test_scores = validation_curve(estimator = tree_1, X = X_train, y = y_train, param_name = 'max_depth', param_range = depth_range, cv = 5, scoring = "roc_auc")
-    train_mean = np.mean(train_scores, axis = 1)
-    train_std = np.std(train_scores, axis = 1)
+    # tree_1 = DecisionTreeClassifier(criterion = "gini", random_state = 0)
+    # train_scores, test_scores = validation_curve(estimator = tree_1, X = X_train, y = y_train, param_name = 'max_depth', param_range = depth_range, cv = 5, scoring = "roc_auc")
+    # train_mean = np.mean(train_scores, axis = 1)
+    # train_std = np.std(train_scores, axis = 1)
 
-    test_mean = np.mean(test_scores, axis = 1)
-    test_std = np.std(test_scores, axis = 1)
+    # test_mean = np.mean(test_scores, axis = 1)
+    # test_std = np.std(test_scores, axis = 1)
     
-    print ('train_mean: ', train_mean)
-    print ('train_std: ', train_std)
-    print ('test_mean: ', test_mean)
-    print ('test_std: ', test_std)
+    # print ('train_mean: ', train_mean)
+    # print ('train_std: ', train_std)
+    # print ('test_mean: ', test_mean)
+    # print ('test_std: ', test_std)
 
-    plt.plot(depth_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
-    plt.fill_between(depth_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
+    # plt.plot(depth_range, train_mean, color = 'blue', marker = 'o', markersize = 5, label = 'training accuracy')
+    # plt.fill_between(depth_range, train_mean + train_std, train_mean - train_std, alpha = .15, color = 'blue')
 
-    plt.plot(depth_range, test_mean, color = 'green', marker = 's', markersize = 5, linestyle = '--', label = 'validation accuracy')
-    plt.fill_between(depth_range, test_mean + test_std, test_mean - test_std, alpha = .15, color = 'green')
+    # plt.plot(depth_range, test_mean, color = 'green', marker = 's', markersize = 5, linestyle = '--', label = 'validation accuracy')
+    # plt.fill_between(depth_range, test_mean + test_std, test_mean - test_std, alpha = .15, color = 'green')
     
-    plt.grid()
-    plt.xscale('log')
-    plt.legend(loc = 'lower right')
-    plt.xlabel('Max Depth')
-    plt.ylabel('Accuracy')
-    # plt.ylim([.5, .7])
-    plt.show()
+    # plt.grid()
+    # plt.xscale('log')
+    # plt.legend(loc = 'lower right')
+    # plt.xlabel('Max Depth')
+    # plt.ylabel('Accuracy')
+    # # plt.ylim([.5, .7])
+    # plt.show()
 
 
     # Gaussian Naive Bayes
+
+    tree_1 = DecisionTreeClassifier(criterion = "gini", random_state = 0, max_depth = 7)
+    tree_1.fit(X_train, y_train)
+    pre_tree = tree_1.predict(X_test)
+
     gnb = GaussianNB()
     gnb.fit(X_train, y_train)
+    pre_gnb = gnb.predict(X_test)
+
+    print('Decision Tree Precision: %.3f' % precision_score(y_true = y_test, y_pred = pre_tree))
+    print('Naive NB Precision: %.3f' % precision_score(y_true = y_test, y_pred = pre_gnb))
+
+    print('Decision Tree Recall: %.3f' % recall_score(y_true = y_test, y_pred = pre_tree))
+    print('Naive NB Recall: %.3f' % recall_score(y_true = y_test, y_pred = pre_gnb))
+    
+    # print('F1: %.3f' % f1_score(y_true = y_test, y_pred = y_pred))
+    # print('roc_auc: %.3f' % roc_auc_score(y_true = y_test, y_score = y_prob))
+    # print('avg_precision: %.3f' % average_precision_score(y_true = y_test, y_score = y_prob))
 
     '''
     QUESTION: 
