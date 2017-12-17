@@ -78,6 +78,27 @@ def do_class_map(df, df_col_ls, cls_map_dict):
         df[n] = df[n].map(cls_map_dict[n])
     return df
 
+def adult_data_preprocess(): 
+    df_adult = pd.read_csv('adult.data', header = None)
+    name_col = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'target']
+    df_adult.columns = name_col
+
+
+    df_adult = replace_qm(df_adult, name_col)
+    # print (df_adult.shape)
+
+    # drop all the "N/A" data
+    for i in name_col: 
+        # print (i)
+        df_adult = df_adult[~df_adult[i].isin(["N/A"])]
+        
+    # print (df_adult.shape)
+
+    cls_map_dict = make_class_map(df_adult, name_col)
+    df_adult = do_class_map(df_adult, name_col, cls_map_dict)
+
+    return df_adult
+
 if __name__ == '__main__':
     df_adult = pd.read_csv('adult.data', header = None)
     name_col = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'target']
@@ -106,6 +127,18 @@ if __name__ == '__main__':
     cls_map_dict = make_class_map(df_adult, name_col)
     df_adult = do_class_map(df_adult, name_col, cls_map_dict)
     
+    df_adult = replace_qm(df_adult, name_col)
+    # print (df_adult.shape)
+
+    # drop all the "N/A" data
+    for i in name_col: 
+        # print (i)
+        df_adult = df_adult[~df_adult[i].isin(["N/A"])]
+        
+    # print (df_adult.shape)
+
+    cls_map_dict = make_class_map(df_adult, name_col)
+    df_adult = do_class_map(df_adult, name_col, cls_map_dict)
     '''
     DATA DEAL
     ====================
@@ -270,4 +303,8 @@ if __name__ == '__main__':
         - ? how to decrease the dimension. 
             - after decrease the dimension, is it possible to run the pair plot
         - remove all the missing data and check if the score will be changed. / also need to check the data qty before and after removing the missing data
+    
+    ABT paper: 
+        - http://robotics.stanford.edu/~ronnyk/nbtree.pdf
+        
     '''
