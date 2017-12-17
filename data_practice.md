@@ -9,6 +9,7 @@ http://archive.ics.uci.edu/ml/datasets.html
 
 ## 2nd pracitce: 
 - Data: Mushroom/ http://archive.ics.uci.edu/ml/datasets/Mushroom
+- Potential problem: how to deal with all the category data. 
 - Purpose: 
     1. to see the prediction's accuracy
     2. to see the main feature to decide which mushroom could be eaten
