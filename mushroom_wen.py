@@ -18,8 +18,14 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.metrics  import roc_auc_score, average_precision_score
 
 def check_qm(df): 
-    for n in df.columns: 
-        print (n)
+    for n in list(df.columns): 
+        # print (n)
+        qestmark_qty = sum([1 for i in list(df[n].str.find("?")) if i != -1])
+        
+        if qestmark_qty == 0: continue
+        print ('column name is {name}'.format(name = n))
+        print ('question mark qty is {qty}'.format(qty = qestmark_qty))
+
 
 class mushroom_ana:
     def __init__(self, df): 
@@ -32,6 +38,7 @@ class mushroom_ana:
             1. deal with missing data
             2. make the data split
         '''
+        check_qm(self.raw_data)
 
     def test(self):
         print (self.raw_data.shape)
@@ -42,13 +49,17 @@ if __name__ == '__main__':
     df_mushroom.columns = name_col
 
     m_ana = mushroom_ana(df_mushroom)
-    # m_ana.test()
-    check_qm(df_mushroom)
+    m_ana.data_prepro()
+    
     
     '''
+    compare version:
+        - try the data with decision tree with/ without dealing with the missing data
+        - compare the accuracy
+
     step 1: make a clear data. 
         - deal with the missing data
-        - turn the string into number if needed
+        - turn the string into number if needed / only "stalk-root" has the question mark
         - make the data split
 
     step 2: check all the algorithm
