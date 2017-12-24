@@ -13,3 +13,5 @@ http://archive.ics.uci.edu/ml/datasets.html
 - Purpose: 
     1. to see the prediction's accuracy
     2. to see the main feature to decide which mushroom could be eaten
+- Comment:
+    - If using the decision tree, once the max_depth = 7, seems all the score could reach to 1.000. 
