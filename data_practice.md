@@ -15,3 +15,9 @@ http://archive.ics.uci.edu/ml/datasets.html
     2. to see the main feature to decide which mushroom could be eaten
 - Comment:
     - If using the decision tree, once the max_depth = 7, seems all the score could reach to 1.000. 
+
+
+## Others
+- find the important feature:  
+http://scikit-learn.org/stable/modules/feature_selection.html
+    

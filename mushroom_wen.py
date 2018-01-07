@@ -20,6 +20,18 @@ from sklearn.metrics  import roc_auc_score, average_precision_score
 
 from sklearn.tree import export_graphviz
 
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectPercentile
+from sklearn.feature_selection import SelectFpr
+from sklearn.feature_selection import SelectFdr
+from sklearn.feature_selection import SelectFromModel
+
+from sklearn.feature_selection import chi2
+from sklearn.feature_selection import f_classif
+from sklearn.feature_selection import mutual_info_classif
+from sklearn.ensemble import ExtraTreesClassifier
+
 def check_qm(df): 
     for n in list(df.columns): 
         # print (n)
@@ -85,6 +97,45 @@ class mushroom_ana:
         self.X = self.raw_data[self.col_names[1:]].values
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size = .3, random_state = 0)
+
+    def _feature_selection(self):
+        # --------- removing feature with low variance --------------
+        # var_thr = VarianceThreshold(threshold=(.8 * (1 - .8)))
+        # X_var_thr = var_thr.fit_transform(self.X)
+        # # print (self.X.shape)
+        # # print (X_var_thr.shape)
+        # # print ([self.col_names[1:][i] for i in var_thr.get_support(indices = True)])
+
+        # --------- univariate feature selection --------------
+        # # check different alg will impact the feature selection or not. 
+        # sel_best = SelectKBest(chi2, k=8)
+        # sel_best_0 = SelectKBest(f_classif, k=8)
+        # sel_best_00 = SelectKBest(mutual_info_classif, k=8)
+        # X_sel_best = sel_best.fit_transform(self.X, self.y)
+        # X_sel_best_0 = sel_best_0.fit_transform(self.X, self.y)
+        # X_sel_best_00 = sel_best_00.fit_transform(self.X, self.y)
+        # print (X_sel_best.shape)
+        # print ([self.col_names[1:][i] for i in sel_best.get_support(indices = True)])
+        # print ([self.col_names[1:][i] for i in sel_best_0.get_support(indices = True)])
+        # print ([self.col_names[1:][i] for i in sel_best_00.get_support(indices = True)])
+
+        # sel_best_1 = SelectPercentile(chi2, percentile = 19)
+        # X_sel_best_1 = sel_best_1.fit_transform(self.X, self.y)
+        # print (X_sel_best_1.shape)
+        # print ([self.col_names[1:][i] for i in sel_best_1.get_support(indices = True)])
+
+        # --------- select From Model --------------
+        clf = ExtraTreesClassifier()
+        clf = clf.fit(self.X, self.y)
+        
+        col_imp = {j:i for i in clf.feature_importances_ for j in self.col_names[1:]}
+        print (sorted(col_imp, key = col_imp.get)[:7])
+        model = SelectFromModel(clf, prefit = True)
+        X_new = model.transform(self.X)
+        
+        
+
+        
 
     def _paratune(self, alg, param_grid, score_name):
         gs = GridSearchCV(estimator = alg, param_grid = param_grid, scoring = score_name, cv = 5)
@@ -158,12 +209,15 @@ if __name__ == '__main__':
 
     m_ana = mushroom_ana(df_mushroom)
     m_ana._dp_data_2split()
-    m_ana.decision_tree()
-    print ('precision score is: {precision_score: .3f}'.format(precision_score = m_ana.preci_scores()))
-    
-    print ('accuracy score is: {accuracy_score: .3f}'.format(accuracy_score = m_ana.accuracy_scores()))
 
-    print ('score is:{roc_auc_score: .3f}'.format(roc_auc_score = m_ana.roc_auc_scores()))
+    m_ana._feature_selection()
+
+    # m_ana.decision_tree()
+    # print ('precision score is: {precision_score: .3f}'.format(precision_score = m_ana.preci_scores()))
+    
+    # print ('accuracy score is: {accuracy_score: .3f}'.format(accuracy_score = m_ana.accuracy_scores()))
+
+    # print ('score is:{roc_auc_score: .3f}'.format(roc_auc_score = m_ana.roc_auc_scores()))
 
     '''
     compare version:
