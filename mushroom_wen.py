@@ -237,7 +237,7 @@ if __name__ == '__main__':
         - ! try to find the important parameter 
             * lr
             * svm
-            * decision tree (does this need to turn the data from string into int? )
+            * decision tree [done]
             * naive bayes (any other naive bayes could be used except the gaussion NB?)
     
     
