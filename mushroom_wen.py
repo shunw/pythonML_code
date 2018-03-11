@@ -240,5 +240,8 @@ if __name__ == '__main__':
             * decision tree [done]
             * naive bayes (any other naive bayes could be used except the gaussion NB?)
     
-    
+    a = [j for i in ['cat','dog','rabbit'] for j in i]
+    print (a)
+
+
     '''
