@@ -13,6 +13,11 @@
 - Highlight: How to change the box plot color. 
 - matplot demo: http://matplotlib.org/examples/pylab_examples/boxplot_demo2.html
 
+## Plot with timeline
+- Input: dataframe with two column, one column is date, the other one is some value
+- Request: plot the value via the time. 
+- Resolution: matplotlib.pyplot.plot_date(dates, values); https://stackoverflow.com/questions/1574088/plotting-time-in-python-with-matplotlib
+
 ```python
 data = (0, 100, 200)
 data2 = (300, 400, 500)
